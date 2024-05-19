@@ -1,63 +1,244 @@
+import ply.lex as lex
 
+# List of token names.
 tokens = [
-    'EOL', 'BOOL', 'CHOICE', 'COMMENT', 'CONFIG', 'DEF_BOOL', 'DEF_TRISTATE', 'DEFAULT', 'DEPENDS', 'ENDCHOICE', 
+    'EOL', 'BOOL', 'CHOICE', 'COMMENT', 'CONFIG', 'DEF_BOOL', 'DEF_TRISTATE', 'DEFAULT', 'DEPENDS', 'ENDCHOICE',
     'ENDIF', 'ENDMENU', 'HELP', 'HEX', 'IF', 'IMPLY', 'INT', 'MAINMENU', 'MENU', 'MENUCONFIG', 'MODULES', 'ON',
-    'OPTIONAL', 'PROMPT', 'RANGE', 'SELECT', 'SOURCE', 'STRING', 'TRISTATE', 'VISIBLE', 'OR', 'AND', 'EQUAL', 
+    'OPTIONAL', 'PROMPT', 'RANGE', 'SELECT', 'SOURCE', 'STRING', 'TRISTATE', 'VISIBLE', 'OR', 'AND', 'EQUAL',
     'UNEQUAL', 'LESS', 'LESS_EQUAL', 'GREATER', 'GREATER_EQUAL', 'NOT', 'OPEN_PAREN', 'CLOSE_PAREN', 'COLON_EQUAL',
-    'PLUS_EQUAL', 'COMMENT_LEX', 'WHITESPACES_LEX', 'ESCAPED_NEW_LINE_LEX', 'STRING_LEX'
+    'PLUS_EQUAL', 'WORD', 'WORD_QUOTE', 'ASSIGN_VAL', 'STRING_LITERAL', 'COMMENT_LITERAL', 'HELPTEXT'
 ]
 
+# Keyword rules
+def t_BOOL(t):
+    r'bool'
+    return t
 
-t_EOL = r'\n'
-t_BOOL = r"bool"
-t_CHOICE = r"choice"
-t_COMMENT = r"comment"
-t_CONFIG = r"config"
-t_DEF_BOOL = r"def_bool"
-t_DEF_TRISTATE = r"def_tristate"
-t_DEFAULT = r"default"
-t_DEPENDS = r"depends"
-t_ENDCHOICE = r"endchoice"
-t_ENDIF = r"endif"
-t_ENDMENU = r"endmenu"
-t_HELP = r"help"
-t_HEX = r"hex"
-t_IF = r"if"
-t_IMPLY = r"imply"
-t_INT = r"int"
-t_MAINMENU = r"mainmenu"
-t_MENU = r"menu"
-t_MENUCONFIG = r"menuconfig"
-t_MODULES = r"modules"
-t_ON = r"on"
-t_OPTIONAL = r"optional"
-t_PROMPT = r"prompt"
-t_RANGE = r"range"
-t_SELECT = r"select"
-t_SOURCE = r"source"
-t_STRING = r"string"
-t_TRISTATE = r"tristate"
-t_VISIBLE = r"visible"
-t_OR = r"\|\|"
-t_AND = r"&&"
-t_EQUAL = r"="
-t_UNEQUAL = r"!="
-t_LESS = r"<"
-t_LESS_EQUAL = r"<="
-t_GREATER = r">"
-t_GREATER_EQUAL = r">="
-t_NOT = r"!"
-t_OPEN_PAREN = r"\("
-t_CLOSE_PAREN = r"\)"
-t_COLON_EQUAL = r":="
-t_PLUS_EQUAL = r"\+="
+def t_CHOICE(t):
+    r'choice'
+    return t
 
-t_ignore_COMMENT_LEX = r'\#.*'
-t_ignore_WHITESPACES_LEX = r'[ \t]'
-t_ignore_ESCAPED_NEW_LINE_LEX = r'\\\n'
+def t_COMMENT(t):
+    r'comment'
+    return t
 
-t_STRING_LEX= r'\"([^\\\n]|(\\.))*?\"'
+def t_CONFIG(t):
+    r'config'
+    return t
 
+def t_DEF_BOOL(t):
+    r'def_bool'
+    return t
+
+def t_DEF_TRISTATE(t):
+    r'def_tristate'
+    return t
+
+def t_DEFAULT(t):
+    r'default'
+    return t
+
+def t_DEPENDS(t):
+    r'depends'
+    return t
+
+def t_ENDCHOICE(t):
+    r'endchoice'
+    return t
+
+def t_ENDIF(t):
+    r'endif'
+    return t
+
+def t_ENDMENU(t):
+    r'endmenu'
+    return t
+
+def t_HELP(t):
+    r'help'
+    return t
+
+def t_HEX(t):
+    r'hex'
+    return t
+
+def t_IF(t):
+    r'if'
+    return t
+
+def t_IMPLY(t):
+    r'imply'
+    return t
+
+def t_INT(t):
+    r'int'
+    return t
+
+def t_MAINMENU(t):
+    r'mainmenu'
+    return t
+
+def t_MENU(t):
+    r'menu'
+    return t
+
+def t_MENUCONFIG(t):
+    r'menuconfig'
+    return t
+
+def t_MODULES(t):
+    r'modules'
+    return t
+
+def t_ON(t):
+    r'on'
+    return t
+
+def t_OPTIONAL(t):
+    r'optional'
+    return t
+
+def t_PROMPT(t):
+    r'prompt'
+    return t
+
+def t_RANGE(t):
+    r'range'
+    return t
+
+def t_SELECT(t):
+    r'select'
+    return t
+
+def t_SOURCE(t):
+    r'source'
+    return t
+
+def t_STRING(t):
+    r'string'
+    return t
+
+def t_TRISTATE(t):
+    r'tristate'
+    return t
+
+def t_VISIBLE(t):
+    r'visible'
+    return t
+
+# Operators and punctuation
+t_OR = r'\|\|'
+t_AND = r'&&'
+t_EQUAL = r'='
+t_UNEQUAL = r'!='
+t_LESS = r'<'
+t_LESS_EQUAL = r'<='
+t_GREATER = r'>'
+t_GREATER_EQUAL = r'>='
+t_NOT = r'!'
+t_OPEN_PAREN = r'\('
+t_CLOSE_PAREN = r'\)'
+t_COLON_EQUAL = r':='
+t_PLUS_EQUAL = r'\+='
+
+# Define a rule for newline
+def t_EOL(t):
+    r'\n'
+    t.lexer.lineno += 1
+    return t
+
+# Define string literals
+def t_STRING_LITERAL(t):
+    r'\"[^\"]*\"|\'[^\']*\''
+    t.value = t.value[1:-1]
+    return t
+
+# Define words (identifiers)
+def t_WORD(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    return t
+
+# Define assignment values
+def t_ASSIGN_VAL(t):
+    r'[^ \t\n]+.*'
+    t.value = t.value.strip()
+    return t
+
+# Define a rule for comments
+def t_COMMENT_LITERAL(t):
+    r'\#.*'
+    pass
+
+# Ignore whitespace
+t_ignore = ' \t'
+
+# Error handling rule
+def t_error(t):
+    print(f"Illegal character '{t.value[0]}'")
+    t.lexer.skip(1)
+
+# String and help state rules
+states = (
+    ('string', 'exclusive'),
+    ('help', 'exclusive'),
+)
+
+# Ignore spaces and tabs in string state
+t_string_ignore = ' \t'
+
+# Ignore spaces and tabs in help state
+t_help_ignore = ' \t'
+
+def t_INITIAL_string(t):
+    r'\"|\''
+    t.lexer.push_state('string')
+    t.lexer.string_start = t.lexer.lexpos
+    t.lexer.string_quote = t.value
+    t.lexer.string_value = ""
+    return
+
+def t_string_end(t):
+    r'\"|\''
+    if t.value == t.lexer.string_quote:
+        t.lexer.pop_state()
+        t.value = t.lexer.string_value
+        return t
+
+def t_string_content(t):
+    r'[^\"\'\\]+'
+    t.lexer.string_value += t.value
+
+def t_string_escape(t):
+    r'\\.'
+    t.lexer.string_value += t.value[1]
+
+def t_string_error(t):
+    print(f"Illegal character in string '{t.value[0]}'")
+    t.lexer.skip(1)
+
+# Help state rules
+def t_INITIAL_help(t):
+    r'\s+'
+    t.lexer.push_state('help')
+    t.lexer.help_indent = len(t.value)
+    t.lexer.help_text = ""
+    return
+
+def t_help_end(t):
+    r'\n[^\s]'
+    t.lexer.pop_state()
+    t.lexer.lexpos -= len(t.value)
+    t.type = 'HELPTEXT'
+    t.value = t.lexer.help_text
+    return t
+
+def t_help_content(t):
+    r'.+'
+    t.lexer.help_text += t.value
+
+def t_help_error(t):
+    print(f"Illegal character in help text '{t.value[0]}'")
+    t.lexer.skip(1)
 
 if __name__ == '__main__':
     data = '''
@@ -73,9 +254,7 @@ if __name__ == '__main__':
       bool "CONFIG C"
       depends on A
       select B
-
     '''
-    import ply.lex as lex
 
     lexer = lex.lex()
     lexer.input(data)
@@ -83,6 +262,6 @@ if __name__ == '__main__':
     # Tokenize
     while True:
         tok = lexer.token()
-        if not tok: 
-            break      # No more input
+        if not tok:
+            break  # No more input
         print(tok)
