@@ -155,7 +155,7 @@ def t_STRING_LITERAL(t):
 
 # Define words (identifiers)
 def t_WORD(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    r'[a-zA-Z_][a-zA-Z0-9_.]*'
     return t
 
 # Define assignment values
@@ -241,20 +241,9 @@ def t_help_error(t):
     t.lexer.skip(1)
 
 if __name__ == '__main__':
-    data = '''
-    mainmenu "Simple example to demo kconfig select broken dependency issue"
-    config A
-      bool "CONFIG A"
-
-    config B
-      bool "CONFIG B"
-      depends on !A
-
-    config C
-      bool "CONFIG C"
-      depends on A
-      select B
-    '''
+    import sys
+    with open(sys.argv[1]) as f:
+        data = f.read()
 
     lexer = lex.lex()
     lexer.input(data)
