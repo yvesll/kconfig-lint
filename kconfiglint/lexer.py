@@ -6,7 +6,7 @@ tokens = [
     'ENDIF', 'ENDMENU', 'HELP', 'HEX', 'IF', 'IMPLY', 'INT', 'MAINMENU', 'MENU', 'MENUCONFIG', 'MODULES', 'ON',
     'OPTIONAL', 'PROMPT', 'RANGE', 'SELECT', 'SOURCE', 'STRING', 'TRISTATE', 'VISIBLE', 'OR', 'AND', 'EQUAL',
     'UNEQUAL', 'LESS', 'LESS_EQUAL', 'GREATER', 'GREATER_EQUAL', 'NOT', 'OPEN_PAREN', 'CLOSE_PAREN', 'COLON_EQUAL',
-    'PLUS_EQUAL', 'WORD', 'WORD_QUOTE', 'ASSIGN_VAL', 'STRING_LITERAL', 'COMMENT_LITERAL', 'HELPTEXT'
+    'PLUS_EQUAL', 'WORD', 'WORD_QUOTE', 'ASSIGN_VAL', 'STRING_LITERAL', 'COMMENT_LITERAL', 'HELP_TEXT'
 ]
 
 # Keyword rules
@@ -158,16 +158,18 @@ def t_WORD(t):
     r'[a-zA-Z_][a-zA-Z0-9_.]*'
     return t
 
+# Define a rule for comments
+def t_COMMENT_LITERAL(t):
+    r'\#.*'
+    pass
+
 # Define assignment values
 def t_ASSIGN_VAL(t):
     r'[^ \t\n]+.*'
     t.value = t.value.strip()
     return t
 
-# Define a rule for comments
-def t_COMMENT_LITERAL(t):
-    r'\#.*'
-    pass
+
 
 # Ignore whitespace
 t_ignore = ' \t'
@@ -180,14 +182,14 @@ def t_error(t):
 # String and help state rules
 states = (
     ('string', 'exclusive'),
-    ('help', 'exclusive'),
+    ('HELP', 'exclusive'),
 )
 
 # Ignore spaces and tabs in string state
 t_string_ignore = ' \t'
 
 # Ignore spaces and tabs in help state
-t_help_ignore = ' \t'
+t_HELP_ignore = ' \t'
 
 def t_INITIAL_string(t):
     r'\"|\''
@@ -217,26 +219,26 @@ def t_string_error(t):
     t.lexer.skip(1)
 
 # Help state rules
-def t_INITIAL_help(t):
+def t_INITIAL_HELP(t):
     r'\s+'
     t.lexer.push_state('help')
     t.lexer.help_indent = len(t.value)
     t.lexer.help_text = ""
     return
 
-def t_help_end(t):
+def t_HELP_end(t):
     r'\n[^\s]'
     t.lexer.pop_state()
     t.lexer.lexpos -= len(t.value)
-    t.type = 'HELPTEXT'
+    t.type = 'HELP_TEXT'
     t.value = t.lexer.help_text
     return t
 
-def t_help_content(t):
+def t_HELP_content(t):
     r'.+'
     t.lexer.help_text += t.value
 
-def t_help_error(t):
+def t_HELP_error(t):
     print(f"Illegal character in help text '{t.value[0]}'")
     t.lexer.skip(1)
 
